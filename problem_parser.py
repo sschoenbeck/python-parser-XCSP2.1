@@ -4,7 +4,7 @@ Due Feb 7, 2022
 CSCE 421
 Simon Schoenbeck
 
-A partial implementation of the parser. This should have been done in Java.
+An implementation of the parser from XML file to ProblemInstance object.
 """
 
 import sys
@@ -12,11 +12,11 @@ import copy
 import argparse
 import xml.etree.ElementTree as ElT
 from enum import Enum
-from instantiation_parser import CustomFunction, function_names
+from intension_parser import CustomFunction, function_names
 
 
 class ProblemInstance(object):
-    """docstring for Instance"""
+    """Object class for the whole ProblemInstance."""
 
     def __init__(self, name, variables, constraints, predicates, relations, domains):
         self.name = copy.copy(name)
@@ -55,7 +55,7 @@ class ProblemInstance(object):
 
 
 class Variable(object):
-    """docstring for Variable"""
+    """Object class for Variable"""
 
     def __init__(self, name, domain):
         self.name = name
@@ -73,7 +73,7 @@ class Variable(object):
 
 
 class Constraint(object):
-    """docstring for Constraints"""
+    """Object class for Constraints"""
 
     def __init__(self, name, arity, variables, reference, parameters):
         self.name = copy.copy(name)
@@ -84,7 +84,7 @@ class Constraint(object):
 
 
 class Predicate(object):
-    """docstring for NonFunctionalRelation"""
+    """Object class for Constraints defined by instantiation"""
 
     def __init__(self, name, parameter_str, function_str):
         self.name = name
@@ -95,7 +95,7 @@ class Predicate(object):
 
 
 class Relation(object):
-    """docstring for NonFunctionalRelation"""
+    """Object class for Constraints defined by enumeration"""
 
     def __init__(self, name, arity, nb_tuples, semantics, pairs):
         self.name = name
@@ -106,7 +106,7 @@ class Relation(object):
 
 
 class Domain(object):
-    """docstring for Domain"""
+    """Object class for variable domains"""
 
     def __init__(self, name, size, values):
         self.name = copy.copy(name)
@@ -115,6 +115,7 @@ class Domain(object):
 
 
 def text_to_domain_values(domain_text, domain_size):
+    """Converts text of enumerated domain into a list of integers."""
     domain_values = set()
     text_parts = domain_text.split(' ')
     for text_part in text_parts:
@@ -129,6 +130,7 @@ def text_to_domain_values(domain_text, domain_size):
 
 
 def parse_domains(domains_xml):
+    """Creates domain objects"""
     domains = dict()
     for domain in domains_xml:
         name = domain.attrib['name']
@@ -139,6 +141,7 @@ def parse_domains(domains_xml):
 
 
 def parse_variables(variables_xml):
+    """Creates variable objects"""
     variables = dict()
     for variable in variables_xml:
         name = variable.attrib['name']
@@ -148,6 +151,7 @@ def parse_variables(variables_xml):
 
 
 def text_to_relation_pairs(relation_text, tuple_count):
+    """Converts text into relation pairs"""
     if tuple_count == 1:
         return {int(relation_text)}
     relation_values = set()
@@ -160,6 +164,7 @@ def text_to_relation_pairs(relation_text, tuple_count):
 
 
 def parse_relations(relations_xml):
+    """Creates relation objects"""
     relations = dict()
     for relation in relations_xml:
         name = relation.attrib['name']
@@ -172,6 +177,7 @@ def parse_relations(relations_xml):
 
 
 def parse_predicates(predicates_xml):
+    """Creates domain object"""
     predicates = dict()
     for predicate in predicates_xml:
         name = predicate.attrib['name']
@@ -182,6 +188,7 @@ def parse_predicates(predicates_xml):
 
 
 def parse_constraints(constraints_xml, predicates, relations):
+    """Creates constraint objects"""
     constraints = dict()
     for constraint in constraints_xml:
         name = constraint.attrib['name']
@@ -196,6 +203,7 @@ def parse_constraints(constraints_xml, predicates, relations):
 
 
 def update_variables(variables, constraints):
+    """Updates all variables with their neighboring variables and constraints."""
     for constraint in constraints:
         scope = constraints[constraint].variables
         for var in scope:
@@ -205,7 +213,10 @@ def update_variables(variables, constraints):
 
 
 def make_functions(predicates):
+    """Parses the predicate text into callable CustomFuction objects."""
     for pred_name in predicates:
+
+        # Parses the predicate text into a list of arguments
         parameter_str = predicates[pred_name].parameter_str
         function_str = predicates[pred_name].function_str
         parameter_list = parameter_str.split(' ')
@@ -215,7 +226,8 @@ def make_functions(predicates):
             arg_type.append(parameter_list[2 * i])
             arg_names.append(parameter_list[2 * i + 1])
         predicates[pred_name].parameter_list = arg_names
-
+        
+        # Parses the predicate text into tokens
         steps_down = function_str.split('(')
         level_pointer = 0
         args_levels = []
@@ -228,6 +240,8 @@ def make_functions(predicates):
                 for arg in args:
                     args_levels.append((arg, level_pointer))
 
+
+        # Creates CustomFunction objects from known token values.
         param_names = []
         prev_level = 0
         custom_fuctions = []
@@ -259,6 +273,8 @@ def make_functions(predicates):
 
             prev_level = level
 
+
+        # Nests CustomFuctions in correct order
         for cf in custom_fuctions:
             cf_args = cf.args
             arg_names = []
@@ -267,6 +283,8 @@ def make_functions(predicates):
                     arg_names.append(cf_arg.name)
                 else:
                     arg_names.append(cf_arg)
+        
+        # Assigns CustomFuction to appropriate predicate
         predicates[pred_name].custom_function = custom_fuctions[0]
     return predicates
 
@@ -277,7 +295,6 @@ def main(args):
     root = tree.getroot()
 
     domains = parse_domains(root.findall('domains')[0])
-
     variables = parse_variables(root.findall('variables')[0])
 
     relations = dict()
@@ -302,10 +319,8 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Testing how to parse command line arguments')
+    parser = argparse.ArgumentParser(description='Creates ProblemInstance object from XML file.')
     parser.add_argument('-f', metavar='file_path', help='file name for the CSP instance')
-    parser.add_argument('-a', metavar='algorithm', help='algorithm for solving the CSP')
-    parser.add_argument('-tc', metavar='thread_count', help='attempts to run the solver with multiple threads')
     args = parser.parse_args()
     if args.f is not None:
         main(args)

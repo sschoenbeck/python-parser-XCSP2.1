@@ -4,7 +4,7 @@ Due Feb 21, 2022
 CSCE 421
 Simon Schoenbeck
 
-This is an additional file for processing the instantiated constraints.
+This is an additional file for processing the intension constraints.
 """
 function_names = ['neg', 'abs', 'add', 'sub', 'mul', 'div', 'mod', 'pow', 'min', 'max', 'eq',
                   'ne', 'ge', 'gt', 'le', 'lt', 'not', 'and', 'or', 'xor', 'iff', 'if']
@@ -128,6 +128,7 @@ def f_if(args) -> bool:
 
 
 class CustomFunction:
+    """CustomFuction objects are used to enable the evaluation of intension constraints."""
     def __init__(self, name):
         self.name = name
         self.args = []
@@ -178,18 +179,18 @@ class CustomFunction:
             self.execute = f_if
 
     def evaluate(self, val_dict):
+        """This function recursively computes the value of this fuction by paring the
+         CustomFunction's arguments with the arguments in the val_dict and passing the val_dict 
+         to nested functions."""
         arg_names = []
         arg_eval = []
         for arg in self.args:
             if type(arg) == type(self):
                 arg_names.append(arg.name)
-                # print(f'This is "{self.name}" asking "{arg.name}" for eval')
                 returned_val = arg.evaluate(val_dict)
-                # print(f'This is "{self.name}" I got "{returned_val}" from {arg.name}')
                 arg_eval.append(returned_val)
             else:
                 if arg in val_dict:
-                    # print(f'I have {arg} and got the value {val_dict[arg]} from val_dict')
                     arg_eval.append(val_dict[arg])
                 else:
                     # Arg is not a var or function so it is assumed to be a literal
@@ -199,7 +200,5 @@ class CustomFunction:
                         literal_val = True
                     else:
                         literal_val = int(arg)
-                    # print(f'I have {arg} and got the literal {literal_val}')
                     arg_eval.append(literal_val)
-        # print(self.name, arg_eval)
         return self.execute(arg_eval)
