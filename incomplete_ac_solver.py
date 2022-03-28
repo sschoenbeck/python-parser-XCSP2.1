@@ -37,6 +37,7 @@ def evaluate_vvd(vvd):
     """Given a variable-value dictionary evaluate if this is allowed by the constraints"""
     relevant_constraint = None
     var1_name, var2_name = vvd.keys()
+    result = True
     for constraint_n in problem.variables[var1_name].constraints:
         if constraint_n in problem.variables[var2_name].constraints:
             relevant_constraint = constraints[constraint_n]
@@ -48,14 +49,13 @@ def evaluate_vvd(vvd):
                 variable_order = relevant_constraint.variables
                 val_tuple = (vvd[variable_order[0]], vvd[variable_order[1]])
                 if relation_type == 'supports':
-                    return val_tuple in relation.pairs
+                    result = result and val_tuple in relation.pairs
                 elif relation_type == 'conflicts':
-                    return val_tuple not in relation.pairs
+                    result = result and val_tuple not in relation.pairs
                 else:
                     print(f'Found reference_name: {reference_name} in relations but type was "{relation_type}".')
-
             elif reference_name in problem.predicates:
-                """ Evaluate for intension constraints"""
+                """ Evaluate for instantiated constraints"""
                 predicate = problem.predicates[reference_name]
                 cf = predicate.custom_function
                 predicate_param_list = predicate.parameter_list
@@ -68,8 +68,8 @@ def evaluate_vvd(vvd):
                     else:
                         arg_dict[predicate_param_list[i]] = constraint_param_list[i]
                 evaluation = cf.evaluate(arg_dict)
-                return evaluation
-    return True
+                result = result and evaluation
+    return result
 
 
 def enforce_node_consistency():
