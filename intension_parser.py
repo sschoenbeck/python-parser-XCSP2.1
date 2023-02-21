@@ -135,51 +135,51 @@ class CustomFunction:
         self.execute = None
         if self.name == 'neg':
             self.execute = f_neg
-        if self.name == 'abs':
+        elif self.name == 'abs':
             self.execute = f_abs
-        if self.name == 'add':
+        elif self.name == 'add':
             self.execute = f_add
-        if self.name == 'sub':
+        elif self.name == 'sub':
             self.execute = f_sub
-        if self.name == 'mul':
+        elif self.name == 'mul':
             self.execute = f_mul
-        if self.name == 'div':
+        elif self.name == 'div':
             self.execute = f_div
-        if self.name == 'mod':
+        elif self.name == 'mod':
             self.execute = f_mod
-        if self.name == 'pow':
+        elif self.name == 'pow':
             self.execute = f_pow
-        if self.name == 'min':
+        elif self.name == 'min':
             self.execute = f_min
-        if self.name == 'max':
+        elif self.name == 'max':
             self.execute = f_max
-        if self.name == 'eq':
+        elif self.name == 'eq':
             self.execute = f_eq
-        if self.name == 'ne':
+        elif self.name == 'ne':
             self.execute = f_ne
-        if self.name == 'ge':
+        elif self.name == 'ge':
             self.execute = f_ge
-        if self.name == 'gt':
+        elif self.name == 'gt':
             self.execute = f_gt
-        if self.name == 'le':
+        elif self.name == 'le':
             self.execute = f_le
-        if self.name == 'lt':
+        elif self.name == 'lt':
             self.execute = f_lt
-        if self.name == 'not':
+        elif self.name == 'not':
             self.execute = f_not
-        if self.name == 'and':
+        elif self.name == 'and':
             self.execute = f_and
-        if self.name == 'or':
+        elif self.name == 'or':
             self.execute = f_or
-        if self.name == 'xor':
+        elif self.name == 'xor':
             self.execute = f_xor
-        if self.name == 'iff':
+        elif self.name == 'iff':
             self.execute = f_iff
-        if self.name == 'if':
+        elif self.name == 'if':
             self.execute = f_if
 
     def evaluate(self, val_dict):
-        """This function recursively computes the value of this fuction by paring the
+        """This function recursively computes the value of itself by paring the
          CustomFunction's arguments with the arguments in the val_dict and passing the val_dict 
          to nested functions."""
         arg_names = []

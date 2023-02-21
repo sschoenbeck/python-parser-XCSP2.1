@@ -7,11 +7,9 @@ Simon Schoenbeck
 An implementation of the parser from XML file to ProblemInstance object.
 """
 
-import sys
 import copy
 import argparse
 import xml.etree.ElementTree as ElT
-from enum import Enum
 from intension_parser import CustomFunction, function_names
 
 
@@ -27,12 +25,14 @@ class ProblemInstance(object):
         self.domains = copy.copy(domains)
 
     def print_info(self):
+        """Prints out the structure of the Problem Instance"""
         print(f'Instance name: {self.name}')
         self.print_variables()
         self.print_constraints()
-        print('='*10)
+        print()
 
     def print_constraints(self):
+        """Prints the constraints"""
         print('Constraints:')
         for name in self.constraints:
             reference = self.constraints[name].reference
@@ -46,6 +46,7 @@ class ProblemInstance(object):
             print(f'Name: {name}, variables: {self.constraints[name].variables}, definition: {reference}')
 
     def print_variables(self):
+        """Prints outs the varaibles"""
         print('Variables:')
         for variable in self.variables:
             var = self.variables[variable]
@@ -65,9 +66,11 @@ class Variable(object):
         self.neighbors = set()
 
     def add_constraint(self, constraint):
+        """Adds a constraint name (str) to the variable object"""
         self.constraints.add(constraint)
 
     def add_scope(self, scope):
+        """Sets the scope (set of neighbors) to the variable object"""
         clean_scope = set(scope) - {self.name}
         self.neighbors.update(clean_scope)
 
@@ -314,14 +317,17 @@ def main(args):
     instance_name = presentation.attrib['name']
     instance = ProblemInstance(instance_name, variables, constraints, predicates, relations, domains)
 
-    # instance.print_info()
+    if args.pi:
+        instance.print_info()
     return instance
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Creates ProblemInstance object from XML file.')
-    parser.add_argument('-f', metavar='file_path', help='file name for the CSP instance')
+    parser.add_argument('-f', metavar='file_path', help='file name for the CSP instance', nargs='?')
+    parser.add_argument('--pi', metavar='print_info', help='print out the CSP instance', nargs='?', const=True, default=False)
     args = parser.parse_args()
+    
     if args.f is not None:
         main(args)
     else:
