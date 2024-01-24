@@ -38,7 +38,7 @@ The code above is an example of how to dynamically assign a function. In this ca
 
 ### csp_benchmarks
 
-This file constains many of the XML files used for testing this parser. It should be able to parse all of these files into `ProblemInstance` objects.
+This directory constains many of the XML files used for testing this parser. It should be able to parse all of these files into `ProblemInstance` objects.
 
 ## Examples
 
