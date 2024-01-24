@@ -1,8 +1,6 @@
 """
-Homework 1
-Due Feb 7, 2022
-CSCE 421
-Simon Schoenbeck
+Author: Simon Schoenbeck
+Modified: Jan 24, 2024
 
 An implementation of the parser from XML file to ProblemInstance object.
 """
@@ -43,7 +41,9 @@ class ProblemInstance(object):
                             f'params: {self.constraints[name].parameters}'
             elif reference in self.relations:
                 reference = f'{self.relations[reference].semantics} {self.relations[reference].pairs}'
-            print(f'Name: {name}, variables: {self.constraints[name].variables}, definition: {reference}')
+            print(f'Name: {name}, '\
+                  f'variables: {self.constraints[name].variables}, '\
+                  f'definition: {reference}')
 
     def print_variables(self):
         """Prints outs the varaibles"""
@@ -103,7 +103,7 @@ class Relation(object):
     def __init__(self, name, arity, nb_tuples, semantics, pairs):
         self.name = name
         self.arity = arity
-        self.nbTuples = copy.copy(nb_tuples)
+        self.nb_tuples = copy.copy(nb_tuples)
         self.semantics = copy.copy(semantics)
         self.pairs = copy.copy(pairs)
 
@@ -128,7 +128,7 @@ def text_to_domain_values(domain_text, domain_size):
                 domain_values.add(i)
         else:
             domain_values.add(int(text_part))
-    assert (len(domain_values) == domain_size)
+    assert len(domain_values) == domain_size
     return domain_values
 
 
@@ -162,7 +162,7 @@ def text_to_relation_pairs(relation_text, tuple_count):
     for text_part in text_parts:
         x, y = text_part.split(' ')
         relation_values.add((int(x), int(y)))
-    assert (len(relation_values) == tuple_count)
+    assert len(relation_values) == tuple_count
     return relation_values
 
 
@@ -190,7 +190,7 @@ def parse_predicates(predicates_xml):
     return predicates
 
 
-def parse_constraints(constraints_xml, predicates, relations):
+def parse_constraints(constraints_xml):
     """Creates constraint objects"""
     constraints = dict()
     for constraint in constraints_xml:
@@ -229,7 +229,7 @@ def make_functions(predicates):
             arg_type.append(parameter_list[2 * i])
             arg_names.append(parameter_list[2 * i + 1])
         predicates[pred_name].parameter_list = arg_names
-        
+
         # Parses the predicate text into tokens
         steps_down = function_str.split('(')
         level_pointer = 0
@@ -239,8 +239,8 @@ def make_functions(predicates):
             level_pointer = level_pointer + 2
             for step in steps_up:
                 level_pointer = level_pointer - 1
-                args = step.split(',')
-                for arg in args:
+                step_args = step.split(',')
+                for arg in step_args:
                     args_levels.append((arg, level_pointer))
 
 
@@ -286,13 +286,14 @@ def make_functions(predicates):
                     arg_names.append(cf_arg.name)
                 else:
                     arg_names.append(cf_arg)
-        
+
         # Assigns CustomFuction to appropriate predicate
         predicates[pred_name].custom_function = custom_fuctions[0]
     return predicates
 
 
 def main(args):
+    """Load file and parse into ProblemInstance Object"""
     file_path = args.f
     tree = ElT.parse(file_path)
     root = tree.getroot()
@@ -309,7 +310,7 @@ def main(args):
     predicates_xml_list = root.findall('predicates')
     if len(predicates_xml_list) >= 1:
         predicates = make_functions(parse_predicates(predicates_xml_list[0]))
-    constraints = parse_constraints(root.findall('constraints')[0], predicates, relations)
+    constraints = parse_constraints(root.findall('constraints')[0])
 
     variables = update_variables(variables, constraints)
 
@@ -325,10 +326,11 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Creates ProblemInstance object from XML file.')
     parser.add_argument('-f', metavar='file_path', help='file name for the CSP instance', nargs='?')
-    parser.add_argument('--pi', metavar='print_info', help='print out the CSP instance', nargs='?', const=True, default=False)
-    args = parser.parse_args()
-    
-    if args.f is not None:
-        main(args)
+    parser.add_argument('--pi', metavar='print_info', help='print out the CSP instance',
+                        nargs='?', const=True, default=False)
+    gargs = parser.parse_args()
+
+    if gargs.f is not None:
+        main(gargs)
     else:
         print('Error no file path given')

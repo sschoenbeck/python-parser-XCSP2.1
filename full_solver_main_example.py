@@ -1,8 +1,13 @@
 """
-Edited February 20, 2023
-Simon Schoenbeck
-This is the main function used for the completed solver that could select between multiple algorithms.
-The functions used for solving are not included.
+Author: Simon Schoenbeck
+Modified: Jan 24, 2024
+
+This is the main function used for the completed solver that could select between 
+multiple algorithms. The functions used for solving are not included.
+
+The use of global variables is not recommended for python, but does allow for easier use of 
+dynamically assigned functions (so we can select an AC algorithm for the solver() function 
+at that start and all other code can just rely on calling a solver).
 """
 
 import time

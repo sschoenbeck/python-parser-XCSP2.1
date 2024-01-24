@@ -1,8 +1,12 @@
 """
 Author: Simon Schoenbeck
-Modified: Feb 20, 2023
+Modified: Jan 24, 2024
 
 A modular implementation of a CSP solver with AC-1 and AC-3.
+
+The use of global variables is not recommended for python, but does allow for easier use of 
+dynamically assigned functions (so we can select an AC algorithm for the solver() function 
+at that start and all other code can just rely on calling a solver).
 """
 
 import time
@@ -39,7 +43,7 @@ def evaluate_vvd(vvd: dict):
             relevant_constraint = constraints[constraint_n]
             reference_name = relevant_constraint.reference
             if reference_name in problem.relations:
-                """ Evaluate for enumerated constraints"""
+                # Evaluate for enumerated constraints
                 relation = problem.relations[relevant_constraint.reference]
                 relation_type = relation.semantics
                 variable_order = relevant_constraint.variables
@@ -52,7 +56,7 @@ def evaluate_vvd(vvd: dict):
                     print(f'Found reference_name: {reference_name} in relations but type was "{relation_type}".')
 
             elif reference_name in problem.predicates:
-                """ Evaluate for instantiated constraints"""
+                # Evaluate for instantiated constraints
                 predicate = problem.predicates[reference_name]
                 cf = predicate.custom_function
                 predicate_param_list = predicate.parameter_list
@@ -208,6 +212,7 @@ def setup_domains():
 
 
 def main():
+    """Modular solver setup with functions dynamically named and called based on arguments"""
     global ProblemObject, constraints, queue, constrained_variable_pairs, solving_start, solving_end, ac_strategy
     ProblemObject = parse_main(args)
     constraints = ProblemObject.constraints
