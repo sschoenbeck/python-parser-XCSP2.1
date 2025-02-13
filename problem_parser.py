@@ -167,16 +167,26 @@ def text_to_relation_pairs(relation_text, tuple_count):
 
 
 def parse_relations(relations_xml):
-    """Creates relation objects"""
-    relations = dict()
-    for relation in relations_xml:
-        name = relation.attrib['name']
-        arity = int(relation.attrib['arity'])
-        nb_tuples = int(relation.attrib['nbTuples'])
-        semantics = relation.attrib['semantics']
-        pairs = text_to_relation_pairs(relation.text, nb_tuples)
-        relations[name] = Relation(name, arity, nb_tuples, semantics, pairs)
-    return relations
+    """Converts text into relation pairs"""
+    if tuple_count == 0:
+        return {}
+    if tuple_count == 1:
+        val_array = relation_text.split(' ')
+        val_list = []
+        for val in val_array:
+            val_list.append(int(val))
+        return {tuple(val_list)}
+    else:
+        relation_values = set()
+        text_parts = relation_text.split('|')
+        for text_part in text_parts:
+            val_array = text_part.split(' ')
+            val_list = []
+            for val in val_array:
+                val_list.append(int(val))
+            relation_values.add(tuple(val_list))
+        assert len(relation_values) == tuple_count
+        return relation_values
 
 
 def parse_predicates(predicates_xml):
